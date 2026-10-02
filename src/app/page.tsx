@@ -112,7 +112,7 @@ export default function Dashboard() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-4 w-4 bg-cyan-500"></span>
               </span>
-              Privacy Radar PRO
+              Privacy Radar
             </h1>
             <p className="text-gray-400 mt-2 text-sm">
               Real-time Wireless & Optical Anomaly Detection
