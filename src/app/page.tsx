@@ -41,7 +41,8 @@ function getThreatInfo(type: string) {
       return {
         label: "Kamera Tersembunyi",
         icon: "\u{1F4F7}",
-        description: "Terdeteksi perangkat optik yang berpotensi sebagai kamera pengintai",
+        description:
+          "Terdeteksi perangkat optik yang berpotensi sebagai kamera pengintai",
         color: "text-orange-400",
         bg: "bg-orange-500/10",
         border: "border-orange-500/30",
@@ -52,7 +53,8 @@ function getThreatInfo(type: string) {
       return {
         label: "Perangkat Bluetooth Asing",
         icon: "\u{1F4F6}",
-        description: "Terdeteksi perangkat Bluetooth yang tidak dikenal di sekitar Anda",
+        description:
+          "Terdeteksi perangkat Bluetooth yang tidak dikenal di sekitar Anda",
         color: "text-blue-400",
         bg: "bg-blue-500/10",
         border: "border-blue-500/30",
@@ -79,12 +81,32 @@ function getDistanceInfo(details: string | null) {
   if (!match) return null;
   const rssi = parseInt(match[1], 10);
   if (rssi >= -50)
-    return { label: "Sangat Dekat", desc: "Kurang dari 1 meter", color: "text-red-400", dot: "bg-red-500" };
+    return {
+      label: "Sangat Dekat",
+      desc: "Kurang dari 1 meter",
+      color: "text-red-400",
+      dot: "bg-red-500",
+    };
   if (rssi >= -70)
-    return { label: "Dekat", desc: "1–3 meter", color: "text-orange-400", dot: "bg-orange-500" };
+    return {
+      label: "Dekat",
+      desc: "1–3 meter",
+      color: "text-orange-400",
+      dot: "bg-orange-500",
+    };
   if (rssi >= -85)
-    return { label: "Sedang", desc: "3–10 meter", color: "text-yellow-400", dot: "bg-yellow-500" };
-  return { label: "Jauh", desc: "Lebih dari 10 meter", color: "text-gray-400", dot: "bg-gray-500" };
+    return {
+      label: "Sedang",
+      desc: "3–10 meter",
+      color: "text-yellow-400",
+      dot: "bg-yellow-500",
+    };
+  return {
+    label: "Jauh",
+    desc: "Lebih dari 10 meter",
+    color: "text-gray-400",
+    dot: "bg-gray-500",
+  };
 }
 
 // ─── Components ──────────────────────────────────────────────────────────────
@@ -104,7 +126,9 @@ function StatCard({
 }) {
   return (
     <div className="bg-gray-900/50 rounded-2xl border border-gray-800 p-5 flex items-start gap-4">
-      <div className={`text-2xl w-12 h-12 rounded-xl flex items-center justify-center ${accent}`}>
+      <div
+        className={`text-2xl w-12 h-12 rounded-xl flex items-center justify-center ${accent}`}
+      >
         {icon}
       </div>
       <div>
@@ -138,7 +162,9 @@ function DetectionCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          <div className={`text-3xl w-14 h-14 rounded-xl flex items-center justify-center shrink-0 ${threat.bg}`}>
+          <div
+            className={`text-3xl w-14 h-14 rounded-xl flex items-center justify-center shrink-0 ${threat.bg}`}
+          >
             {isSafe ? "\u{2705}" : threat.icon}
           </div>
           <div>
@@ -146,7 +172,9 @@ function DetectionCard({
               <h3 className="font-semibold text-white text-lg">
                 {isSafe ? "Perangkat Aman" : threat.label}
               </h3>
-              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${threat.severityColor}`}>
+              <span
+                className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${threat.severityColor}`}
+              >
                 {isSafe ? "Aman" : threat.severity}
               </span>
             </div>
@@ -168,7 +196,9 @@ function DetectionCard({
               )}
               {distance && !isSafe && (
                 <span className={`flex items-center gap-1.5 ${distance.color}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${distance.dot}`}></span>
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${distance.dot}`}
+                  ></span>
                   {distance.label} ({distance.desc})
                 </span>
               )}
@@ -193,7 +223,9 @@ function DetectionCard({
 export default function Dashboard() {
   const [logs, setLogs] = useState<ScanLog[]>([]);
   const [safeDevices, setSafeDevices] = useState<SafeDevice[]>([]);
-  const [locationName, setLocationName] = useState<string>("Mendeteksi lokasi...");
+  const [locationName, setLocationName] = useState<string>(
+    "Mendeteksi lokasi...",
+  );
   const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
@@ -219,7 +251,7 @@ export default function Dashboard() {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "scan_logs" },
-        (payload) => setLogs((prev) => [payload.new, ...prev]),
+        (payload: { new: any }) => setLogs((prev) => [payload.new, ...prev]),
       )
       .subscribe();
 
@@ -262,7 +294,10 @@ export default function Dashboard() {
       .insert([{ mac_address: mac, device_name: deviceName }]);
     if (error) alert("Gagal menyimpan: " + error.message);
     else {
-      setSafeDevices((prev) => [...prev, { mac_address: mac, device_name: deviceName }]);
+      setSafeDevices((prev) => [
+        ...prev,
+        { mac_address: mac, device_name: deviceName },
+      ]);
       alert(`${deviceName} berhasil ditambahkan ke daftar aman!`);
     }
   };
@@ -271,7 +306,8 @@ export default function Dashboard() {
     !!mac && safeDevices.some((d) => d.mac_address === mac);
 
   const activeThreats = logs.filter(
-    (l) => !isKnownSafe(l.mac_address) && l.mac_address && l.mac_address !== "-",
+    (l) =>
+      !isKnownSafe(l.mac_address) && l.mac_address && l.mac_address !== "-",
   ).length;
   const safeCount = safeDevices.length;
   const todayCount = logs.filter((l) => {
@@ -318,29 +354,42 @@ export default function Dashboard() {
         {/* ── Help Panel ── */}
         {showHelp && (
           <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-2xl p-6 space-y-4">
-            <h3 className="font-bold text-indigo-300 text-lg">Cara Membaca Dashboard Ini</h3>
+            <h3 className="font-bold text-indigo-300 text-lg">
+              Cara Membaca Dashboard Ini
+            </h3>
             <div className="grid sm:grid-cols-3 gap-4 text-sm">
               <div className="space-y-2">
-                <p className="font-semibold text-orange-400">📷 Kamera Tersembunyi</p>
+                <p className="font-semibold text-orange-400">
+                  📷 Kamera Tersembunyi
+                </p>
                 <p className="text-gray-400">
-                  Sistem mendeteksi perangkat optik (kamera) yang berpotensi digunakan untuk mengintai Anda secara diam-diam.
+                  Sistem mendeteksi perangkat optik (kamera) yang berpotensi
+                  digunakan untuk mengintai Anda secara diam-diam.
                 </p>
               </div>
               <div className="space-y-2">
-                <p className="font-semibold text-blue-400">📶 Perangkat Bluetooth Asing</p>
+                <p className="font-semibold text-blue-400">
+                  📶 Perangkat Bluetooth Asing
+                </p>
                 <p className="text-gray-400">
-                  Terdeteksi perangkat Bluetooth yang tidak dikenal di sekitar Anda. Bisa berupa pelacak, perangkat penyadap, atau perangkat mencurigakan lainnya.
+                  Terdeteksi perangkat Bluetooth yang tidak dikenal di sekitar
+                  Anda. Bisa berupa pelacak, perangkat penyadap, atau perangkat
+                  mencurigakan lainnya.
                 </p>
               </div>
               <div className="space-y-2">
                 <p className="font-semibold text-gray-300">📍 Estimasi Jarak</p>
                 <p className="text-gray-400">
-                  Menunjukkan seberapa dekat perangkat terdeteksi dengan Anda. Semakin dekat, semakin besar potensi risikonya.
+                  Menunjukkan seberapa dekat perangkat terdeteksi dengan Anda.
+                  Semakin dekat, semakin besar potensi risikonya.
                 </p>
               </div>
             </div>
             <div className="text-sm text-gray-400 pt-2 border-t border-indigo-500/20">
-              <strong className="text-gray-300">Tips:</strong> Jika perangkat yang terdeteksi adalah perangkat milik Anda sendiri (misal Bluetooth earphone), klik &quot;Tandai Aman&quot; agar tidak muncul sebagai ancaman.
+              <strong className="text-gray-300">Tips:</strong> Jika perangkat
+              yang terdeteksi adalah perangkat milik Anda sendiri (misal
+              Bluetooth earphone), klik &quot;Tandai Aman&quot; agar tidak
+              muncul sebagai ancaman.
             </div>
           </div>
         )}
@@ -401,7 +450,8 @@ export default function Dashboard() {
 
         {/* ── Footer ── */}
         <div className="text-center text-xs text-gray-600 pt-4 border-t border-gray-800/50">
-          Privacy Radar &mdash; Sistem Deteksi Ancaman Nirkabel &copy; {new Date().getFullYear()}
+          Privacy Radar &mdash; Sistem Deteksi Ancaman Nirkabel &copy;{" "}
+          {new Date().getFullYear()}
         </div>
       </div>
     </div>
