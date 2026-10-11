@@ -599,7 +599,7 @@ export default function Dashboard() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
               </span>
-              Privacy Radar PRO
+              AntiSpyWare
             </h1>
             <p className="text-gray-400 mt-1.5 text-sm font-medium">
               Sistem Pemindai Keamanan Ruangan Terpadu
