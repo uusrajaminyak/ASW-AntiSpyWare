@@ -477,6 +477,8 @@ function DetectionCard({
 
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
+type FilterType = "all" | "wifi" | "bluetooth";
+
 export default function Dashboard() {
   const [logs, setLogs] = useState<ScanLog[]>([]);
   const [safeDevices, setSafeDevices] = useState<SafeDevice[]>([]);
@@ -484,6 +486,7 @@ export default function Dashboard() {
     "Menyinkronkan lokasi...",
   );
   const [showHelp, setShowHelp] = useState(false);
+  const [filterType, setFilterType] = useState<FilterType>("all");
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -576,6 +579,15 @@ export default function Dashboard() {
     return d.toDateString() === new Date().toDateString();
   }).length;
 
+  const filteredLogs = logs.filter((l) => {
+    if (filterType === "wifi") return l.threat_type === "WIFI";
+    if (filterType === "bluetooth") return l.threat_type === "BLE";
+    return true;
+  });
+
+  const wifiCount = logs.filter((l) => l.threat_type === "WIFI").length;
+  const bluetoothCount = logs.filter((l) => l.threat_type === "BLE").length;
+
   return (
     <div className="min-h-screen bg-[#06080c] text-gray-200 font-sans selection:bg-indigo-500/30">
       <div className="max-w-[70rem] mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -652,16 +664,48 @@ export default function Dashboard() {
 
         {/* ── Detection Feed ── */}
         <div className="space-y-5 pt-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h2 className="text-lg font-bold text-gray-200 flex items-center gap-2.5">
               Riwayat Deteksi Terkini
             </h2>
-            <button
-              onClick={() => setShowHelp(!showHelp)}
-              className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1.5"
-            >
-              <Icons.Info /> Panduan Sistem
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setFilterType("all")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border ${
+                  filterType === "all"
+                    ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/50"
+                    : "bg-gray-800/50 text-gray-400 border-gray-700 hover:border-gray-600 hover:text-gray-300"
+                }`}
+              >
+                Semua
+              </button>
+              <button
+                onClick={() => setFilterType("wifi")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border flex items-center gap-1.5 ${
+                  filterType === "wifi"
+                    ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/50"
+                    : "bg-gray-800/50 text-gray-400 border-gray-700 hover:border-gray-600 hover:text-gray-300"
+                }`}
+              >
+                <Icons.Signal /> Wi-Fi ({wifiCount})
+              </button>
+              <button
+                onClick={() => setFilterType("bluetooth")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border flex items-center gap-1.5 ${
+                  filterType === "bluetooth"
+                    ? "bg-blue-500/20 text-blue-300 border-blue-500/50"
+                    : "bg-gray-800/50 text-gray-400 border-gray-700 hover:border-gray-600 hover:text-gray-300"
+                }`}
+              >
+                <Icons.Signal /> Bluetooth ({bluetoothCount})
+              </button>
+              <button
+                onClick={() => setShowHelp(!showHelp)}
+                className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1.5 ml-2"
+              >
+                <Icons.Info /> Panduan
+              </button>
+            </div>
           </div>
 
           {showHelp && (
@@ -681,7 +725,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {logs.length === 0 ? (
+          {filteredLogs.length === 0 ? (
             <div className="bg-[#121826]/50 rounded-2xl border border-gray-800/50 p-16 flex flex-col items-center justify-center text-center">
               <div className="text-gray-600 mb-4 bg-gray-800/30 p-4 rounded-full">
                 <Icons.Shield />
@@ -690,13 +734,16 @@ export default function Dashboard() {
                 Sistem Sedang Memantau
               </p>
               <p className="text-gray-500 text-sm mt-2 max-w-sm mx-auto">
-                Riwayat temuan perangkat mencurigakan akan langsung muncul di
-                sini secara otomatis.
+                {filterType === "wifi"
+                  ? "Tidak ada deteksi Wi-Fi yang tercatat."
+                  : filterType === "bluetooth"
+                    ? "Tidak ada deteksi Bluetooth yang tercatat."
+                    : "Riwayat temuan perangkat mencurigakan akan langsung muncul di sini secara otomatis."}
               </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {logs.map((log) => (
+              {filteredLogs.map((log) => (
                 <DetectionCard
                   key={log.id}
                   log={log}
